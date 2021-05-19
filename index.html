@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html>    
+    <head>
+        <title>WYKRESIARZ</title>
+        <script src="chart.js"></script>
+        <style>
+            #chart-container
+            {
+                height:100%;
+                width:100%;
+            }
+            #lol
+            {
+                display:flex;
+                flex-direction: row;
+            }
+            
+        </style>
+    </head>
+    <body>
+        &copy Marcin Ryba 2021
+    <div id='lol'>
+        <div id='xd'>
+        
+        <input id="nazwa" size="50%" placeholder="nazwa funkcji"></input><br>
+        <input id="przedzial_ab" size="50%" placeholder="funkcja w przedziale AB "></input><br>
+        <input id="przedzial_bc" size="50%" placeholder="funkcja w przedziale BC "></input><br>
+        <input id="przedzial_cd" size="50%" placeholder="funkcja w przedziale CD "></input><br>
+        <input id="czas_tb" size="50%" placeholder="czas TB "></input><br>
+        <input id="czas_tc" size="50%" placeholder="czas TC "></input><br>
+        <input id="czas_td" size="50%" placeholder="czas TD "></input><br>
+        <input id="dokladnosc" size="50%" placeholder="dokladnosc " value='10'></input><br>
+        <button onClick="zrob()">narysuj</button><br>
+        <p>Instrukcja: Piszemy jak w matlabie/excelu <br>oliczenia z paroma wyjątkami:<br>Funkcje cosinus/sinus muszą być zapisane następująco: <br>Math.cos(wartosc)<br>Math.sin(wartosc)
+        <br>Potęgi: <br>x*x <br>Math.pow(wartosc,potega) <br>[np. Math.pow(x,3)]<br>Pierwiastek - Math.sqrt(x)<br>
+        Nieznana zmienna czasu zapisywana jako t<br>
+        NIE wolno pisać np. '13Math.cos(1t-0.5)', trzeba pisać '13*Math.cos(1*t-0.5)'<br>
+        NIE piszemy przecinków - stosujemy kropki 
+        </p>
+        </div>
+        <div class="chart-container">
+            <canvas id="myChart" height="300px" width="600px"></canvas>
+        </div>
+    </div>
+        <script>
+        let iksy = [];
+        let wyniki = [];
+        var tb;
+        var tc;
+        var td ;
+        var myChart;
+        let bylocos = false;
+        function zrob()
+        {
+            var dokladnosc = document.getElementById('dokladnosc').value*1;
+            var f_AB = document.getElementById('przedzial_ab').value;
+            var f_BC = document.getElementById('przedzial_bc').value;
+            var f_CD = document.getElementById('przedzial_cd').value;
+            tb = document.getElementById('czas_tb').value*1;
+            tc = document.getElementById('czas_tc').value*1;
+            td = document.getElementById('czas_td').value*1;
+            iksy = [];
+            wyniki = [];
+            for(t = 0;t<tb;t+=Math.pow(dokladnosc,-1))
+            {
+                iksy.push(Math.ceil(t*dokladnosc)/dokladnosc);
+                wyniki.push(eval(f_AB));
+            }
+            for(t = tb+Math.pow(dokladnosc,-1);t<tc;t+=Math.pow(dokladnosc,-1))
+            {
+                iksy.push(Math.ceil(t*dokladnosc)/dokladnosc);
+                wyniki.push(eval(f_BC));
+            }
+            for(t = tc+Math.pow(dokladnosc,-1);t<=(td+Math.pow(dokladnosc,-1));t+=Math.pow(dokladnosc,-1))
+            {
+                iksy.push(Math.ceil(t*dokladnosc)/dokladnosc);
+                wyniki.push(eval(f_CD));
+            }
+            var ctx = document.getElementById('myChart').getContext('2d');
+            if(bylocos === true)
+            {
+                myChart.destroy();
+            }
+            bylocos = true;
+            myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: iksy,
+                datasets: [{ 
+                    data: wyniki,
+                    label: 'Wartość funkcji',
+                    borderColor: "#3e95cd",
+                    fill: false,
+                    pointRadius:0
+                }, 
+                ]
+            },
+            options: {
+                responsive:false,
+                maintainAspectRatio: false,
+                scales: {
+                y: {
+                    title: {
+                    color: 'black',
+                    display: true,
+                    text: document.getElementById('nazwa').value
+                    }
+                },
+                x: {
+                    title: {
+                    color: 'black',
+                    display: true,
+                    text: 't [s]'
+                    },
+					                ticks: {
+                    // Include a dollar sign in the ticks
+                    callback:  function(val, index) {
+					if(this.getLabelForValue(val) === tb)
+					{
+						return tb;
+                        return index % 2 === 0 ? this.getLabelForValue(val) : '';
+                    }
+					else if(this.getLabelForValue(val) === tc)
+					{
+						return tc;
+					}
+					else if(this.getLabelForValue(val) === td)
+					{
+						return td
+					}
+					return null;
+                }}
+					
+                }
+            }}
+            })
+        }
+        </script>
+    </body>
+    
+</html>
